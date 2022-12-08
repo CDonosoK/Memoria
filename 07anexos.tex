@@ -1,0 +1,741 @@
+\secnumberlesssection{ANEXOS}
+
+\begin{comment}
+
+\textbf{PREPARACIÓN DEL AMBIENTE DE LA MEMORIA}
+
+\begin{verbatim}
+    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu 
+    $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+\end{verbatim}
+
+\begin{verbatim}
+    sudo apt install curl # if you haven't already installed curl
+    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc 
+    | sudo apt-key add -
+\end{verbatim}
+
+\begin{verbatim}
+    sudo apt update
+\end{verbatim}
+
+\begin{verbatim}
+    sudo apt install ros-noetic-desktop-full
+\end{verbatim}
+
+\begin{verbatim}
+    echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+    source ~/.bashrc
+\end{verbatim}
+
+\begin{verbatim}
+    sudo apt install python3-rosdep python3-rosinstall 
+    python3-rosinstall-generator python3-wstool build-essential
+\end{verbatim}
+
+\begin{verbatim}
+    sudo apt install python3-rosdep
+\end{verbatim}
+
+\begin{verbatim}
+    sudo rosdep init
+    rosdep update
+\end{verbatim}
+
+\newpage
+\textbf{SECCIÓN DE CÓDIGOS DEL TIPO LAUNCH FILE}
+
+\textbf{ros\_serial.launch}
+\begin{verbatim}
+<launch>
+    <node 
+        pkg="rosserial_python" 
+        name="arduino_node" 
+        type="serial_node.py">
+        <param 
+            name="port" 
+            value="/dev/ttyACM0" 
+        />
+        <param 
+            name="baud" 
+            value="115200" 
+        />
+    </node>
+</launch>
+\end{verbatim}
+
+\textbf{ld19.launch}
+\begin{verbatim}
+<launch>
+    <node 
+        name="LD19" 
+        pkg="ldlidar_stl_ros" 
+        type="ldlidar_stl_ros_node">
+        <param 
+            name="product_name" 
+            value="LDLiDAR_LD19"/>
+        <param 
+            name="topic_name" 
+            value="scan"/>
+        <param 
+            name="port_name" 
+            value ="/dev/ttyUSB0"/>
+        <param 
+            name="frame_id" 
+            value="base_laser"/>
+        <param 
+            name="laser_scan_dir" 
+            type="bool" 
+            value="true"/>
+        <param 
+            name="enable_angle_crop_func" 
+            type="bool" 
+            value="false"/>
+        <param 
+            name="angle_crop_min" 
+            type="double" 
+            value="135.0"/>
+        <param 
+            name="angle_crop_max" 
+            type="double" 
+            value="225.0"/>
+    </node>
+    <node 
+        name="base_to_laser" 
+        pkg="tf" 
+        type="static_transform_publisher"  
+        args="0.0 0.0 0.18 4.71 0.0 0.0 base_link base_laser 50"/>
+</launch>
+\end{verbatim}
+
+\textbf{gazebo.launch}
+\begin{verbatim}
+<launch>
+    <arg 
+        name="extra_gazebo_args" 
+        default="--verbose"/>
+    
+    <arg 
+        name="world_file" 
+        default="$(
+            find robocop_description)/
+            worlds/
+            simulation_world_00/
+            simulation_world_00.world"/>
+    
+    <param 
+        name="robot_description" 
+        command="$(find xacro)/xacro 
+        $(find robocop_description)/urdf/robocop.xacro"/>
+    <node 
+        name="spawn_urdf"
+        pkg="gazebo_ros" 
+        type="spawn_model" 
+        args="-param robot_description -urdf -model robocop"/>
+    <include 
+        file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg 
+            name="world_name" 
+            value="$(arg world_file)"/>
+        <arg 
+            name="paused" 
+            value="false"/>
+        <arg 
+            name="use_sim_time" 
+            value="true"/>
+        <arg 
+            name="gui" 
+            value="true"/>
+        <arg 
+            name="headless" 
+            value="false"/>
+        <arg 
+            name="debug" 
+            value="false"/>
+        <arg 
+            name="extra_gazebo_args" 
+            value="$(arg extra_gazebo_args)"/>
+    </include>
+</launch>
+\end{verbatim}
+
+\textbf{camera.launch}
+\begin{verbatim}
+<launch>
+    <node 
+        name="usb_cam" 
+        pkg="usb_cam" 
+        type="usb_cam_node">
+        <param 
+            name="video_device" 
+            value="/dev/video2" />
+        <param 
+            name="image_width" 
+            value="640"/>
+        <param 
+            name="image_height" 
+            value="480"/>
+        <param 
+            name="pyxel_format" 
+            value="yuvj420p"/>
+        <param 
+            name="image_format" 
+            value="rgb8"/>
+        <param 
+            name="camera_frame_id" 
+            value="usb_cam"/>
+        <param 
+            name="io_method" 
+            value="mmap"/>
+    </node>
+    <node 
+        name="image_view" 
+        pkg="image_view" 
+        type="image_view" 
+        respawn="false">
+        <remap 
+            from="image" 
+            to="usb_cam/image_raw"/>
+        <param 
+            name="autosize" 
+            value="true"/>
+    </node>
+</launch>
+\end{verbatim}
+
+\textbf{robocop\_map.launch}
+\begin{verbatim}
+<launch>
+    <include 
+        file="$(find robocop_description)/launch/ld19.launch"/>
+    <include 
+        file="$(find robocop_description)/launch/mapping/display_map.launch"/>
+    <include 
+        file="$(find robocop_description)/launch/mapping/ps4.launch"/>
+    <include 
+        file="$(find robocop_description)/launch/mapping/hector_mapping.launch"/>
+</launch>
+\end{verbatim}
+
+\textbf{ps4.launch}
+\begin{verbatim}
+<launch>
+    <group ns="j1">
+        <node 
+            name="ds4_joystick" 
+            pkg="joy" 
+            type="joy_node">
+                <param 
+                    name="dev" 
+                    value="/dev/input/js1" />
+        </node>
+    </group>
+    <node 
+        pkg="robocop_description" 
+        name="ps4Controller"
+        type="ps4Controller.py"/> 
+    <node 
+        pkg="rosserial_python" 
+        name="arduino_node" 
+        type="serial_node.py">
+        <param 
+            name="port" 
+            value="/dev/ttyACM0" />
+        <param 
+            name="baud" 
+            value="115200" />
+    </node>
+</launch>
+\end{verbatim}
+
+\textbf{hector\_mapping.launch}
+\begin{verbatim}
+<launch>
+    <node 
+        pkg="hector_mapping" 
+        type="hector_mapping" 
+        name="hector_mapping">
+        <param 
+            name="base_frame" 
+            value="base_link" />
+        <param 
+            name="odom_frame"
+            value="base_link" />
+    </node>
+</launch>
+\end{verbatim}
+
+\textbf{display\_map.launch}
+\begin{verbatim}
+<launch>
+    <arg 
+        name="model" 
+        default="$(find robocop_description)/urdf/robocop.xacro"/>
+    <arg 
+        name="multi_robot_name" 
+        default=""/>
+    
+    <param 
+        name="robot_description" 
+        command="$(find xacro)/xacro $(arg model)"/>
+    <node 
+        pkg="rviz" 
+        type="rviz" name="rviz" 
+        required="true" 
+        args="-d $(find robocop_description)/launch/robocop.rviz"/>
+
+    <node 
+        pkg="robot_state_publisher" 
+        type="robot_state_publisher" 
+        name="robot_state_publisher">
+        <param 
+            name="publish_frequency" 
+            type="double" 
+            value="50.0"/>
+        <param 
+            name="tf_prefix" 
+            value="$(arg multi_robot_name)"/>
+    </node>
+    <node 
+        name="joint_state_publisher" 
+        pkg="joint_state_publisher" 
+        type="joint_state_publisher"/>
+</launch>
+
+\end{verbatim}
+
+\textbf{robocop\_auto.launch}
+\begin{verbatim}
+<launch>
+    <include 
+        file="$(find robocop_description)/launch/ld19.launch"/>
+    <include 
+        file="$(find robocop_description)/launch/auto/display_auto.launch"/>
+    <include 
+        file="$(find robocop_description)/launch/ros_serial.launch"/>
+</launch>
+
+\end{verbatim}
+
+\textbf{display\_auto.launch}
+\begin{verbatim}
+<launch>
+    <arg 
+        name="model"
+        default="$(find robocop_description)/urdf/robocop.xacro"/>
+    <arg 
+        name="multi_robot_name" 
+        default=""/>
+    <param 
+        name="robot_description"
+        command="$(find xacro)/xacro $(arg model)"/>
+    <node 
+        pkg="rviz" type="rviz" 
+        name="rviz" required="true" 
+        args="-d $(find robocop_description)/launch/robocop.rviz"/>
+    
+    <node 
+        pkg="robot_state_publisher" 
+        type="robot_state_publisher" 
+        name="robot_state_publisher">
+        <param 
+            name="publish_frequency" 
+            type="double" 
+            value="50.0" />
+        <param 
+            name="tf_prefix" 
+            value="$(arg multi_robot_name)"/>
+    </node>
+    <node 
+        name="joint_state_publisher" 
+        pkg="joint_state_publisher" 
+        type="joint_state_publisher"/>
+    <node 
+        name="map_server" 
+        pkg="map_server" 
+        type="map_server" 
+        args="$(
+            find robocop_description)/
+            worlds/
+            real_world_00/
+            real_world_00.yaml" />
+    <include 
+        file="$(
+            find robocop_description)/
+            launch/
+            auto/
+            amcl_robocop.launch"/>
+    
+    <node 
+        pkg="move_base" 
+        type="move_base" 
+        respawn="false"
+        name="move_base" 
+        output="screen">
+        <param 
+            name="base_local_planner" 
+            value="dwa_local_planner/DWAPlannerROS" />
+    <rosparam 
+        file="$(
+            find robocop_description)/
+            codes/
+            navigation_stack/
+            costmap_common_params.yaml" 
+        command="load" 
+        ns="global_costmap" />
+    <rosparam 
+        file="$(
+            find robocop_description)/
+            codes/
+            navigation_stack/
+            costmap_common_params.yaml" 
+        command="load" 
+        ns="local_costmap" />
+    <rosparam 
+        file="$(
+            find robocop_description)/
+            codes/
+            navigation_stack/
+            local_costmap_params.yaml" 
+        command="load" />
+    <rosparam 
+        file="$(
+            find robocop_description)/
+            codes/
+            navigation_stack/
+            global_costmap_params.yaml" 
+        command="load" />
+    <rosparam 
+        file="$(
+            find robocop_description)/
+            codes/
+            navigation_stack/
+            move_base_params.yaml" 
+        command="load" />
+    <rosparam file="$(
+        find robocop_description)/
+        codes/
+        navigation_stack/
+        dwa_local_planner_params.yaml" 
+        command="load" />
+    </node>
+</launch>
+
+
+\end{verbatim}
+
+\textbf{amcl\_robocop.launch}
+\begin{verbatim}
+<launch>
+    <node 
+        pkg="amcl"
+        type="amcl" 
+        name="amcl">
+        <param 
+            name="min_particles"             
+            value="500"/>
+        <param 
+            name="max_particles"             
+            value="3000"/>
+        <param 
+            name="kld_err"                   
+            value="0.02"/>
+        <param 
+            name="update_min_d"              
+            value="0.20"/>
+        <param 
+            name="update_min_a"              
+            value="0.20"/>
+        <param 
+            name="resample_interval"         
+            value="1"/>
+        <param 
+            name="transform_tolerance"      
+            value="0.5"/>
+        <param 
+            name="recovery_alpha_slow"      
+            value="0.00"/>
+        <param
+            name="recovery_alpha_fast"      
+            value="0.00"/>
+        <param 
+            name="gui_publish_rate"          
+            value="50.0"/>
+        <param 
+            name="laser_max_range"           
+            value="8"/>
+        <param 
+            name="laser_min_range"           
+            value="0.3"/>
+        <param 
+            name="laser_max_beams"          
+            value="180"/>
+        <param 
+            name="laser_z_hit"               
+            value="0.5"/>
+        <param 
+            name="laser_z_short"             
+            value="0.05"/>
+        <param 
+            name="laser_z_max"              
+            value="0.05"/>
+        <param 
+            name="laser_z_rand"              
+            value="0.5"/>
+        <param 
+            name="laser_sigma_hit"           
+            value="0.2"/>
+        <param 
+            name="laser_lambda_short"        
+            value="0.1"/>
+        <param 
+            name="laser_likelihood_max_dist" 
+            value="2.0"/>
+        <param 
+            name="laser_model_type"          
+            value="likelihood_field"/>
+        <param 
+            name="odom_model_type"           
+            value="diff"/>
+        <param 
+            name="odom_alpha1"               
+            value="0.1"/>
+        <param 
+            name="odom_alpha2"              
+            value="0.1"/>
+        <param 
+            name="odom_alpha3"               
+            value="0.1"/>
+        <param 
+            name="odom_alpha4"              
+            value="0.1"/>
+        <param 
+            name="odom_frame_id"             
+            value="odom"/>
+        <param 
+            name="base_frame_id"             
+            value="base_link"/>
+        
+        </node>
+</launch>
+\end{verbatim}
+
+\newpage
+\textbf{SECCIÓN DE CÓDIGOS PARA EL CONTROL}
+
+\textbf{ps4Controller.py}
+\begin{verbatim}
+#!/usr/bin/env python
+
+from sensor_msgs.msg import Joy
+import sys, rospy
+from geometry_msgs.msg import Twist
+
+def chatter_callback(mensaje):
+    joystick_izquierdo = (
+        round(mensaje.axes[0],
+        3), 
+        round(mensaje.axes[1], 3)
+        )
+    joystick_derecho = (
+        round(mensaje.axes[2], 
+        3), 
+        round(mensaje.axes[5], 3)
+        )
+    botones = (
+        mensaje.buttons[1], 
+        mensaje.buttons[2], 
+        mensaje.buttons[3], 
+        mensaje.buttons[0])
+
+    # Publish data to cmd_vel topic
+    publisherMotores = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+    twist = Twist()
+    twist.linear.x = joystick_izquierdo[1]
+    twist.angular.z = joystick_derecho[0]
+    publisherMotores.publish(twist)
+
+
+def nodoPS4():
+    nombreNodo = "nodo_ps4"
+    idUnico = True
+    rospy.init_node(nombreNodo, anonymous = idUnico)
+ 
+    nombreTopico = "/j1/joy"
+    tipoTopico = Joy 
+
+    rospy.Subscriber(nombreTopico, tipoTopico, chatter_callback)
+    rospy.spin()
+
+
+if __name__ == "__main__":
+    global arduino
+    nodoPS4()
+    
+\end{verbatim}
+
+\newpage
+\textbf{SECCIÓN DE CÓDIGOS PARA LA CÁMARA}
+
+\textbf{camera.py}
+\begin{verbatim}
+#!/usr/bin/env python
+
+import cv2
+import numpy as np
+import time
+
+# Create a VideoCapture object
+cap = cv2.VideoCapture(2)
+
+# Check if camera opened successfully
+if (cap.isOpened()== False):
+    print("Error opening video stream or file")
+
+# Read until video is completed
+while(cap.isOpened()):
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+    if ret == True:
+        # Change the display size
+        frame = cv2.resize(frame, (320, 640))
+        # Display the resulting frame
+        cv2.imshow('Frame',frame)
+
+        # Press Q on keyboard to  exit
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+
+    # Break the loop
+    else:
+        break
+
+# When everything done, release the video capture object
+cap.release()
+\end{verbatim}
+
+\newpage
+\textbf{SECCIÓN DE CÓDIGOS PARA LOS MOTORES}
+
+\textbf{controller\_motor.ino}
+\begin{verbatim}
+// Se importan las librerías
+#include <ros.h>
+#include <AFMotor.h>
+
+// Se importan los mensajes
+#include <geometry_msgs/Twist.h>
+
+// Variables globales de ROS
+ros::NodeHandle nHandler;
+
+// Se instancian las variables
+float linearVelocity;
+float angularVelocity;
+float turnRightVel;
+float turnLeftVel;
+
+int forwardRight, forwardLeft, turnRight, turnLeft;
+AF_DCMotor Motor1(3);
+AF_DCMotor Motor2(4);
+
+const byte encoder_rightA = 18;
+const byte encoder_rightB = 19;
+const byte encoder_leftA = 20;
+const byte encoder_leftB = 21;
+
+static long counter_right = 0;
+static long counter_left = 0;
+static long counter_right_old = 0;
+static long counter_left_old = 0;
+
+volatile bool fired_right, fired_left;
+volatile bool up_right, up_left;
+
+double x = 0;
+double y = 0;
+double theta = 0;
+
+double rightVelocity = 0.0;
+double leftVelocity = 0.0;
+
+int long currentTime = 0;
+int long previousTime = 0;
+
+float map_float(
+    float x, 
+    float in_min, 
+    float in_max, 
+    float out_min, 
+    float out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+void callback(const geometry_msgs::Twist& vel){
+  linearVelocity = vel.linear.x;
+  angularVelocity = vel.angular.z;
+
+  int right_velocity = 150;
+  int left_velocity = 150;
+  if (linearVelocity>0.1){
+    Motor1.run(FORWARD);
+    Motor2.run(FORWARD);
+    Motor1.setSpeed(right_velocity);
+    Motor2.setSpeed(left_velocity);
+  }
+  if (linearVelocity<-0.1){
+    Motor1.run(BACKWARD);
+    Motor2.run(BACKWARD);
+    Motor1.setSpeed(right_velocity);
+    Motor2.setSpeed(left_velocity);
+  }
+  if (angularVelocity>0.1){
+    Motor1.run(FORWARD);
+    Motor2.run(BACKWARD);
+    Motor1.setSpeed(right_velocity);
+    Motor2.setSpeed(left_velocity);
+  }
+  if (angularVelocity<-0.1){
+    Motor1.run(BACKWARD);
+    Motor2.run(FORWARD);
+    Motor1.setSpeed(right_velocity);
+    Motor2.setSpeed(left_velocity);
+  }
+  if (abs(angularVelocity)<0.1 and abs(linearVelocity)<0.1){
+    Motor1.setSpeed(0);
+    Motor2.setSpeed(0);
+  }
+
+}
+
+// Creación de los nodos de ROS
+ros::Subscriber<geometry_msgs::Twist> nodo_vel("cmd_vel", callback);
+
+// Variables para la odometría
+double odom_x = 1.0;
+double odom_y = 0.0;
+double odom_thet = 1.57;
+void setup(){
+  // Se ajustan los nodos
+  nHandler.getHardware()->setBaud(115200);
+  nHandler.initNode();
+  nHandler.subscribe(nodo_vel);
+
+  // Se ajustan los motores
+  Motor1.setSpeed(0);
+  Motor2.setSpeed(0);
+  Motor1.run(RELEASE);
+  Motor2.run(RELEASE);
+
+
+  Serial.begin(115200);
+}
+
+void loop(){ 
+  nHandler.spinOnce();
+
+}
+
+\end{verbatim}
+
+\end{comment}

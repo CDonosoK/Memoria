@@ -1,0 +1,282 @@
+\documentclass[letterpaper,12pt]{article}
+
+% @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@>
+% VALORES A MODIFICAR POR USTED:
+% @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@>
+
+% NOTE: Leer nota en el README sobre la font.
+
+\newcommand{\titulo}{
+Creación de algoritmo SLAM 3D para robot móvil autónomo en ambientes controlados
+}
+\newcommand{\ciudad}{Santiago} % e.g. Valparaíso
+% TODO: Consultar el formato de los nombres:
+\newcommand{\nombrealumno}{Clemente Donoso Krauss}
+\newcommand{\nombreprofesor}{Erika Rosas}
+\newcommand{\nombrecorreferente}{Federico Meza}
+% Mes y año del examen
+\newcommand{\mesexamen}{Diciembre}
+\newcommand{\anioexamen}{2022}
+% Dedicatoria y agradecimientos
+\newcommand{\dedicatoria}{
+
+Quiero dedicar mi memoria a mis padres Andrés y Alejandra, a mis hermanos y en especial a mi novia Paloma, quienes me brindaron su apoyo incondicional para cumplir mis sueños.
+}
+\newcommand{\agradecimientos}{
+Me gustaría partir agradeciendo a mis hermanos Andrés, Cristián, Juan Pablo, José Tomás, Felipe e Isidora, por acompañar a este "nerd'' y de forma especial a mis padres Andrés y Alejandra, que por medio de su esfuerzo, cariño y templanza me dieron la posibilidad de seguir mis sueños, por sus ideales y enseñanzas que cada día me permiten ser un mejor ser humano. Les agradezco por no dejar de confiar en su hijo.
+
+A mis amigos que conocí en el transcurso de estos 5 años, por que sin su ayuda, el "tatita'' no estaría acá. Gracias a todos los que permitieron de una u otra manera que hoy esté entregando mi memoria.
+
+Agradezco también a mi profesora guía, Erika Rosas, que tomó el desafío de realizar una memoria sobre robótica conmigo. Le agradezco los consejos,las facilidades y ayuda fundamentales a la hora de escribir la memoria. Gracias por haber aceptado este gran desafío.
+
+También gracias al "Big Boss'',  José Luis Martí por apoyarme en una de las experiencias más enriquecedoras de mi vida como lo fue la pasantía en Inria, Francia. 
+
+Y sobretodo a mi novia Paloma, te agradezco la relación maravillosa que tenemos y también tu ayuda y amor incondicional, por ser mi faro de luz en los momentos de más tempestad, por ser mi fortaleza en los momentos en que me quería rendir, por apoyarme e impulsarme a seguir mis sueños y seguir construyendo mis robots. Esta memoria está escrita para ti y por ti, 
+
+\newline
+
+\textbf{GRACIAS TOTALES}
+}
+\newcommand{\resumen}{
+Bajo el contexto de la robótica móvil la localización, navegación y percepción del entorno es una tarea fundamental, es por ello que algoritmos que engloben dichas características son esenciales.
+
+En la memoria se propone un nuevo algoritmo SLAM 3D el cual modifica el algoritmo OctoMap existente aumentando su precisión al momento de generar rutas y generar el mapa tridimensional. El algoritmo se implementó en un robot físico y se evaluó su desempeño según su comportamiento en 5 ambientes distintos y en base a 10 métricas, dónde también se comparó su rendimiento con un algoritmo de SLAM bidimensional y  otro tridimensional.
+}
+\newcommand{\resumeningles}{
+Under the context of mobile robotics, localization, navigation and perception of the environment it is a fundamental task, which is why algorithms that include these characteristics are essential.
+
+In this document, a new SLAM 3D algorithm is proposed, which modifies the existing OctoMap algorithm, increasing its precision when generating routes and generating the three-dimensional map. The algorithm was implemented in a physical robot and its performance was evaluated according to its behavior in 5 different environments and based on 10 metrics, where its performance was also compared with a two-dimensional and a three-dimensional SLAM algorithm.
+}
+\newcommand{\palabrasclave}{
+Robótica, ROS, SLAM, Navegación, Autonomía
+}
+\newcommand{\palabrasclaveingles}{
+Robotics, ROS, SLAM, Navigation, Autonomy
+}
+% @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@>
+
+% Paquete para importar imágenes
+\usepackage{graphicx}
+% Directorio de las imágenes
+\graphicspath{ {figures/} }
+
+% Idioma y fuentes
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[usenames]{color}
+
+\usepackage{fontspec}
+% Los siguientes comandos fueron sugeridos por @anibalbastiass (ver issue#5)
+% para contar con Carlito en cursiva y negrita.
+\setmainfont{Carlito}[BoldFont={* Bold}]
+\setmainfont{Carlito}[ItalicFont={* Italic}]
+
+% Paquete para definir cualquier tamaño de font
+\usepackage{anyfontsize}
+
+% Settear font
+\setmainfont{Carlito}
+
+% Tamaño de la página y márgenes
+\usepackage[letterpaper,top=2.5cm,bottom=3cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Determinar interlineado:
+\renewcommand{\baselinestretch}{1.0}
+
+% Eliminar sangrías:
+\setlength{\parindent}{0cm}
+
+% Paquete para definir los formatos de los títulos
+\usepackage[explicit]{titlesec}
+
+\titleformat{name=\section}[block]{\fontsize{16}{24}\selectfont\bfseries}{}{0pt}{#1}
+\titleformat{name=\section,numberless}[block]{\fontsize{16}{24}\selectfont\bfseries}{}{0pt}{#1}
+\titlespacing*{name=\section}{0pt}{0pt}{0.5cm}
+\titlespacing*{name=\section,numberless}{0pt}{0pt}{0.5cm}
+
+% Separación entre parrafos
+\setlength{\parskip}{0.4cm}
+
+% Paquetes de utilidad general
+\usepackage{booktabs}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+
+% Formato de las tablas de contenido
+% \usepackage[tocflat]{tocstyle}
+\usepackage{tocstyle}
+\usetocstyle{allwithdot}
+
+% Para obtener el número de la última página
+\usepackage{lastpage}
+
+\usepackage{algorithm}
+%\usepackage{algorithmic}
+\usepackage{multicol}
+
+% Header y footer
+\usepackage{fancyhdr}
+\fancypagestyle{portada}{
+    \lhead{}
+    \chead{}
+    \rhead{}
+    \lfoot{}
+    \cfoot{\fontsize{10}{12}\selectfont \thepage}
+    \rfoot{}
+    \renewcommand{\headrulewidth}{0pt}
+}
+\fancypagestyle{intermedio}{
+    \lhead{}
+    \chead{\fontsize{10}{12}\selectfont\MakeUppercase{\titulo}}
+    \rhead{}
+    \lfoot{}
+    \cfoot{\fontsize{10}{12}\selectfont Página \textbf{\thepage}\ de \textbf{\pageref{LastPage}}}
+    \rfoot{}
+    \renewcommand{\headrulewidth}{1pt}
+}
+
+% Comandos para secciones
+\newcommand{\secnumbersection}[1]{
+\addtocounter{section}{1}
+\phantomsection
+\section*{CAPÍTULO \thesection \texorpdfstring{\\}\ #1}
+\addcontentsline{toc}{section}{CAPÍTULO \thesection : #1}
+\setcounter{subsection}{0}
+}
+\newcommand{\secnumberlesssection}[1]{
+\section*{#1}
+\phantomsection
+\addcontentsline{toc}{section}{#1}
+\setcounter{subsection}{0}
+}
+\usepackage{verbatim}
+
+\usepackage{array}
+\usepackage{booktabs}
+
+% Nombres
+\addto\captionsspanish{\renewcommand{\contentsname}{ÍNDICE DE CONTENIDOS}}
+\addto\captionsspanish{\renewcommand{\listfigurename}{ÍNDICE DE FIGURAS}}
+\addto\captionsspanish{\renewcommand{\listtablename}{ÍNDICE DE TABLAS}}
+\makeatletter
+\renewenvironment{thebibliography}[1]
+     {\secnumberlesssection{REFERENCIAS BIBLIOGRÁFICAS}
+      \@mkboth{\MakeUppercase\bibname}{\MakeUppercase\bibname}%
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliography' environment}}%
+      \endlist}
+\makeatother
+
+% Personalizar Tabla de Contenidos
+
+\usepackage{tocloft}
+\renewcommand{\cftsecfont}{\fontsize{12}{14}\selectfont\fontspec{Carlito}}
+\renewcommand{\cftsubsecfont}{\fontsize{12}{14}\selectfont\fontspec{Carlito}}
+\renewcommand{\cftsubsubsecfont}{\fontsize{12}{14}\selectfont\fontspec{Carlito}}
+
+\renewcommand\cftfigfont{\fontsize{12}{14}\selectfont\fontspec{Carlito}}
+
+% Links sin color
+\usepackage{hyperref} 
+\hypersetup{ colorlinks, citecolor=black, filecolor=black, linkcolor=black, urlcolor=black }
+
+
+
+% Comando para secciónes sin enumeración
+% (sugerido por @anibalbastiass https://github.com/autopawn/tex-thesis-template/issues/5#issuecomment-916106128)
+\newcommand{\secnumberlesssubsection}[1]{
+\subsection*{#1}
+\phantomsection
+\addcontentsline{toc}{subsection}{#1}
+\setcounter{subsection}{0}
+}
+% Forma de uso:
+% \secnumberlesssubsection{"Sub seccion sin enumeración"}
+
+% @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@>
+\begin{document}
+\sloppy % Para evitar que referencias se escapen de los márgenes.
+
+% Paquetes para algoritmos
+
+\renewcommand{\listalgorithmname}{ÍNDICE DE ALGORITMOS}
+\floatname{algorithm}{ALGORITMO}
+
+\pagestyle{portada}
+\pagenumbering{roman}
+\input{portadas}
+
+\newpage
+\input{000glosario}
+
+%Índice de contenidos:
+\newpage
+\thispagestyle{portada}
+\tableofcontents
+
+
+
+%Índice de figuras:
+\newpage
+\thispagestyle{portada}
+\phantomsection
+\addcontentsline{toc}{section}{ÍNDICE DE FIGURAS}
+\listoffigures
+
+\phantomsection
+\addcontentsline{toc}{section}{ÍNDICE DE TABLAS}
+\listoftables
+
+
+
+\phantomsection
+\addcontentsline{toc}{section}{ÍNDICE DE ALGORITMOS}
+\listofalgorithms
+
+\newpage
+\pagestyle{intermedio}
+\pagenumbering{arabic}
+\input{00introduccion}
+
+\newpage
+\input{01definicion_del_problema}
+\newpage
+\input{02marco_conceptual}
+\newpage
+\input{03propuesta_de_solucion}
+\newpage
+\input{04diseño_experimental}
+\newpage
+\input{05experimentación}
+\newpage
+\input{06conclusiones}
+\newpage
+\input{07anexos}
+
+\newpage
+% Bibliografía estilo APA:
+\bibliographystyle{apalike-es}
+\bibliography{bibliografia}{}
+
+\end{document}

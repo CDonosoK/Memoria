@@ -1,0 +1,71 @@
+\secnumbersection{CONCLUSIONES}
+
+\subsection{CONCLUSIONES GENERALES}
+En los tiempos actuales donde la tecnología está abarcando nuevas áreas y la robótica se encuentra con nuevos desafíos, la creación de algoritmos que permitan a los robots entender, cuantificar e integrar los datos provenientes del entorno se hacen de suma importancia. El algoritmo propuesto propone además de implementar un mapeo tridimensional como bidimensional del entorno, una variable nueva a tomar en cuenta como lo son las zonas prohibidas, como también, abarca el problema de la asociación de los datos con la ayuda de dos sensores como lo son el LIDAR y una cámara de profundidad.
+
+\subsubsection{RESULTADOS GENERALES}
+Para validar el algoritmo creado, se utilizaron 5 ambientes físicos que simulan los distintos escenarios a los cuales un robot se puede enfrentar en el día a día. El ambiente uno simuló aquellos escenarios en dónde el robot se encuentra a campo abierto, el escenario dos simuló aquellos escenarios en dónde el robot se encuentra frente a un obstáculo, el ambiente tres simuló aquellos escenarios en dónde existen diversos obstáculos en el ambiente, por otro lado el ambiente cuatro simuló aquellos escenarios en donde el robot debe realizar una parada en su ruta y finalmente en el ambiente número cinco, el robot se vio enfrentado a la inclusión de zonas prohibidas en el mapa.
+
+Dentro de las conclusiones más importantes obtenidas al momento de realizar la experimentación en los diversos ambientes, se pueden identificar las siguientes: 
+
+\begin{itemize}
+    \item Un modelo matemático del robot es esencial a la hora de implementar algoritmos de navegación, ya que la estimación de la posición dentro del mapa se basa fuertemente en estos cálculos. Pequeños errores en este cálculo pueden generar resultados desastrosos.
+    \item El algoritmo propuesto presenta un mejor tiempo de generación del mapa que el algoritmo OctoMap, sin embargo, en promedio se demora el doble de tiempo en la generación del mapa en comparación con el algoritmo Hector. Esto se debe a que este último consiste únicamente en la generación de un mapa bidimensional, mientras que el algoritmo propuesto genera un mapa tridimensional y bidimensional a la vez.
+    \item La precisión del mapa generado por el algoritmo propuesto está dentro de los estándares de la robótica mundial (sobre el 95\%), sin embargo, el algoritmo no está preparado para mapear ambientes exteriores debido a los problemas propios de los sensores utilizados y la precisión requerida debe ser sobre el 98\%.
+    \item La implementación de detección de zonas prohibidas es una novedad en este tipo de algoritmos, ya que en ninguna investigación previa se encontró la implementación de este tipo de tecnología. 
+    \item Se nota una diferencia no menor en el tamaño de los archivos entre un algoritmo de mapeo bidimensional y un algoritmo de mapeo tridimensional, sin embargo, esto hace sentido debido a las propias características de los mapas.
+    \item El algoritmo propuesto tiene un consumo de memoria similar al algoritmo OctoMap en los ambientes 1, 2, 3 y 4, sin embargo, se nota una gran diferencia en el consumo de memoria en el ambiente 5. Esto debido a los propios cálculos que hace el algoritmo al momento de identificar las zonas prohibidas.
+\end{itemize}
+
+\subsubsection{LIMITACIONES}
+La creación de un algoritmo SLAM 3D y la posterior implementación física de dicho algoritmo conlleva varias limitaciones entre las cuales se destacan el propio rendimiento delos sensores utilizados. Debido al aspecto económico, se adquirieron aquellos sensores que tenían el mejor rendimiento a bajo costo. Otras de las limitaciones que se identificaron a la hora de realizar la experimentación fueron las propias falencias electrónicas que debían resolverse al momento de ejecutar la memoria. Por último, también un a de las limitaciones más importantes fue el propio espacio físico de experimentación, en dónde el robot solo se pudo exponer a ambientes cerrados de aproximadamente 20 metros cuadrados.
+
+\subsubsection{PRINCIPALES DESAFÍOS}
+Dentro de los principales desafíos enfrentados durante el desarrollo de la memoria  se pueden destacar tres:
+\begin{itemize}
+    \item El primero desafío corresponde a los conocimientos mínimos para desarrollar la memoria. Dado que la memoria se centró en la robótica, varios conocimientos estaba fuera de los abarcados por los ramos dictados por la universidad por lo que fue necesario no solo realizar una gran lectura de papers y documentación de códigos, sino también el aprendizaje de nuevas tecnologías como lo son las herramientas de simulación y ROS.
+    \item El segundo desafío corresponde a la implementación física del robot. Al momento de desarrollar la memoria, los algoritmos fueron testeados utilizando simuladores, en los cuales si bien se pueden simular físicas, el comportamiento electrónico y las propias falencias de los sensores no se pueden simular. Por lo que existió un cambio rotundo entre el comportamiento en la simulación del algoritmo y el comportamiento al momento de implementarlo en el robot físicamente.
+    \item El tercer desafío hace alusión al ambiente número 5, específicamente a lo que corresponde con las zonas prohibidas. Inicialmente no se contempló la idea de zonas prohibidas en el algoritmo, por lo que fue un desafío implementar cambios en tiempo real del mapa generado que permitieran mostrar la zona prohibida.
+\end{itemize}
+
+\subsection{RESULTADOS PRINCIPALES}
+
+\subsubsection{OBJETIVOS SECUNDARIOS}
+\begin{itemize}
+    \item Analizar los algoritmos de localización y navegación simultánea para adquirir los conocimientos del área a través de una investigación del estado del arte
+
+    El estudio del estado del arte de los algoritmos de localización y navegación simultánea fue esencial para el desarrollo de la memoria. Este análisis se ve reflejado en la amplia bibliografía requerida para redactar la memoria y el contundente marco conceptual de la memoria. Por lo que el objetivo fue cumplido.
+    
+    \item Diseñar un algoritmo de localización y navegación simultánea tridimensional por medio de la utilización de una cámara de profundidad y un lidar para construir un mapa tridimensional de bajo costo
+
+    Relacionado directamente con el objetivo específico o principal de la memoria, la creación de un algoritmo SLAM tridimensional se observa durante el desarrollo de la experimentación. En donde no solo se crea el mapa bidimensional de los 5 ambientes, sino también se genera el mapa tridimensional de este y se puede navegar utilizando dichos mapas de referencia. Durante el desarrollo de la memoria se utilizó una cámara de profundidad de bajo costo al igual que el lidar, lo que permite dar una solución al problema mediante sensores de bajo costo.
+
+    
+    \item Evaluar el desempeño del algoritmo propuesto por medio de la implementación física del robot considerando diversos ambientes de prueba
+
+    El tercer objetivo corresponde a la implementación del algoritmo en un robot físico y su testeo en diversos ambientes, al igual que el objetivo anterior, el cumplimiento del objetivo se puede observar en el capítulo correspondiente a las experimentaciones realizadas. En dónde se detalla tanto el robot físico diseñado para la memoria, como también los resultados del mapeo hecho por el robot. Por otro lado, este mapeo se analizó y se evaluó en base a las 10 métricas identificadas de donde se concluyen los resultados generales descritos anteriormente.
+\end{itemize}
+
+\subsubsection{OBJETIVO ESPECÍFICO}
+\begin{itemize}
+    \item Crear un algoritmo de localización y navegación simultánea utilizando una cámara de profundidad y un lidar para un robot móvil autónomo en ambientes controlados
+
+    El cumplimiento de los objetivos secundarios detallados anteriormente permiten dar por logrado el objetivo específico de la memoria, dado que se creó un algoritmo de localización y navegación tridimensional utilizando una cámara de profundidad y un lidar. 
+    
+\end{itemize}
+
+
+\subsection{TRABAJO FUTURO}
+Aquellos interesados que deseen continuar con la investigación sería interesante plantear nuevas mejoras y nuevos puntos de vista para abordar el problema de la navegación y localización simultánea en la robótica móvil, es por ello que a continuación se indican los lineamientos donde el autor considera esencial trabajar a futuro.
+
+\subsubsection{ROS2}
+Como fue explayado en el documento, el algoritmo se realizó en el framework ROS - Noetic. Sin embargo, se indicó en los foros que a partir del año 2025 este dejaría de tener soporte oficial, es por ello, que es de suma importancia realizar una migración del trabajo realizado a versiones posteriores como lo son ROS 2, la cual además estar mejor optimizada, presenta nuevas utilidades y nuevas funcionalidades.
+
+\subsubsection{RENDIMIENTO}
+Si bien los resultados obtenidos fueron prometedores, sería interesante plantear el algoritmo en entornos no controlados y observar el comportamiento de este y analizar los resultados de este en ambientes más complejos, ya que ambientes tan pequeños no permiten dar certeza de los resultados obtenidos. Por otra parte, actualmente el algoritmo tiene un alto consumo de memoria al momento de identificar las zonas prohibidas, por lo que sería interesante optimizar el algoritmo para disminuir dicho consumo de memoria y así el algoritmo estar disponible a más robots.
+
+\subsubsection{MOVILIDAD TRIDIMENSIONAL}
+Actualmente el algoritmo de navegación está pensado en utilizar esencialmente el mapa bidimensional, esto quiere decir, que el robot solo se puede mover en ambientes en donde no existen elevaciones, cambios de altura o no se puede implementar en robots que por ejemplo, puedan volar. Es por ello que se plantea la posibilidad de modificar el algoritmo a futuro para permitir la movilidad tridimensional y no solo tener en cuenta el espacio tridimensional como está construido actualmente.
+
+\subsubsection{PERMISIBILIDAD}
+Una de las novedades que el algoritmo tiene es la implementación y reconocimiento de zonas prohibidas. Estas zonas, tal cual como dice su nombre, son zonas en donde el robot no puede ingresar aunque no existe obstáculo alguno. Sería interesante dar un elemento de permitibilidad, es decir, si todas las rutas posibles se encuentras obstruidas, permitir al robot ingresar a la zona prohibida para continuar con la tarea asignada.
